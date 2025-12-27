@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Favicon -->
-    <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/c6f729e3f2ce7e2bc59bf6037f6fe0f491d94819.png">
+    <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/65e69772ba0b6a9cddf4b983c01162626a9b0cc6.png">
 
     <!-- =========================== -->
     <!-- SECTION 3: BASE CSS STYLES -->
@@ -334,7 +334,19 @@
 
         .sidebar-nav-button.active .sidebar-nav-icon {
             transform: rotate(90deg) scale(1.2);
+            animation: spinOnce 0.5s ease;
         }
+
+        @keyframes spinOnce {
+            from {
+                transform: rotate(-330deg) scale(1.2); /* Start 360° back */
+            }
+            to {
+                transform: rotate(0deg) scale(1.3); /* End at the normal active rotation */
+            }
+        }
+        
+        
         
         
         
