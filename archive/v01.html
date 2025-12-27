@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- =========================== -->
+    <!-- SECTION 1: PAGE TITLE & META -->
+    <!-- =========================== -->
+    <title>Dashboard - AIM™</title>
+    <meta name="description" content="AIM AI Mastery Program Dashboard">
+    
+    <!-- =========================== -->
+    <!-- SECTION 2: FONTS & ICONS -->
+    <!-- =========================== -->
+    <!-- Import Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Icons (Font Awesome) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://bucket.mlcdn.com/a/3336/3336910/images/c6f729e3f2ce7e2bc59bf6037f6fe0f491d94819.png">
+
+    <!-- =========================== -->
+    <!-- SECTION 3: BASE CSS STYLES -->
+    <!-- =========================== -->
+    <style>
+        /* --- AIM Brand Styles --- */
+        :root {
+            --skin-color: #ff5011;
+            --mirage-color: hsl(210, 10%, 23%);
+            --title-color: hsl(242, 8%, 98%);
+            --text-color: hsl(242, 8%, 80%);
+            --body-color: #0d0d0d;
+            --box-color: hsl(242, 14%, 12%);
+            --body-font: 'Inter', sans-serif;
+            --shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            --small-font-size: 0.95rem;
+            --h3-font-size: 1.25rem;
+            --smaller-font-size: 0.75rem;
+            --mb15: 0.75rem;
+            --mb3: 1.5rem;
+            --sidebar-width: 250px;
+            --sidebar-width-collapsed: 70px;
+        }
+
+        /* --- Base & Scrollbar --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            font-family: var(--body-font);
+            background-color: var(--body-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            display: flex; /* Use flexbox for main layout */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            flex-direction: column; /* Allow signature to be at the bottom */
+        }
+        
+        img { max-width: 100%; height: auto; display: block; }
+        a { text-decoration: none; cursor: pointer; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #333; }
+        ::-webkit-scrollbar-thumb { background: var(--skin-color); border-radius: 4px; }
+        
+        /* Utility container class */
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* --- Loader Styles --- */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* =========================== */
+        /* SECTION 4: DASHBOARD LAYOUT & SIDEBAR */
+        /* =========================== */
+        #dashboard-wrapper {
+            display: flex;
+            width: 100%;
+            flex-grow: 1; /* Allow wrapper to take available height */
+        }
+
+        #sidebar {
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width); /* Prevent shrinking */
+            background-color: var(--box-color);
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-right: 1px solid var(--mirage-color);
+            box-shadow: var(--shadow);
+            transition: width 0.3s ease, min-width 0.3s ease;
+            position: sticky; /* Keep sidebar visible when scrolling main content */
+            top: 0;
+            left: 0;
+            height: 100vh; /* Take full viewport height */
+            z-index: 100;
+            overflow-y: auto; /* Allow scrolling if many items */
+            border-radius: 0; /* Rounded right corners */
+        }
+
+        #sidebar.collapsed {
+            width: var(--sidebar-width-collapsed);
+            min-width: var(--sidebar-width-collapsed);
+            padding: 1.5rem 0.5rem;
+            align-items: center;
+        }
+
+        #sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 2rem;
+            padding: 0 0.5rem;
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        #sidebar.collapsed #sidebar-header {
+            justify-content: center;
+            padding: 0;
+        }
+
+        #sidebar-logo {
+            height: 75px;
+            width: auto;
+            transition: opacity 0.3s ease;
+        }
+        #sidebar-logo:hover {
+            opacity: 0.8;
+        }
+
+        /* Hide logo when sidebar is collapsed */
+        #sidebar.collapsed #sidebar-logo {
+            display: none !important;
+        }
+
+        #sidebar-toggle {
+            background: transparent;
+            border: none;
+            color: var(--skin-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, color 0.3s ease;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+        
+        #sidebar-toggle:hover {
+            color: var(--title-color);
+            transform: scale(1.1);
+        }
+
+        #sidebar.collapsed #sidebar-toggle {
+            transform: rotate(180deg);
+            margin: 0;
+        }
+
+        #sidebar-nav {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            flex-grow: 1; /* Allow nav to take available space */
+        }
+
+        .sidebar-nav-button {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 0.75rem 1rem;
+            background-color: transparent;
+            border: none;
+            border-radius: 0.5rem;
+            color: var(--text-color);
+            font-family: var(--body-font);
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+            width: 100%;
+        }
+
+        .sidebar-nav-button:hover {
+            background-color: rgba(255, 80, 17, 0.1); /* Light skin-color background */
+            color: var(--skin-color);
+            transform: translateY(-2px);
+        }
+
+        .sidebar-nav-button i {
+            font-size: 1.2rem;
+            width: 20px; /* Fixed width for icons */
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .sidebar-nav-button span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        #sidebar.collapsed .sidebar-nav-button span {
+            opacity: 0;
+            width: 0;
+            padding: 0;
+            margin: 0;
+        }
+        
+        #sidebar.collapsed .sidebar-nav-button {
+            justify-content: center;
+            padding: 0.75rem;
+            gap: 0;
+        }
+        
+        #sidebar.collapsed .sidebar-nav-button i {
+            margin: 0;
+            width: auto;
+        }
+
+        #dashboard-main-content {
+            flex-grow: 1;
+            padding: 2rem;
+            background-color: var(--body-color);
+            transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            overflow: auto; /* Allow main content to scroll */
+        }
+
+        #content-iframe {
+            width: 100%;
+            height: 100%;
+            border: 1px solid var(--mirage-color);
+            border-radius: 0.75rem;
+            background-color: var(--box-color);
+            box-shadow: var(--shadow);
+            flex-grow: 1; /* Allow iframe to fill available space */
+        }
+
+        /* =========================== */
+        /* SECTION 5: BACK TO TOP BUTTON */
+        /* =========================== */
+        #back-to-top {
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px;
+            width: 50px; 
+            height: 50px;
+            background: url('https://ik.imagekit.io/bebell/Project%20Freedom/AIM%E2%84%A2%20AI%20Mastery%20Program/back%20to%20top%20(3)%202.png?updatedAt=1763457651597') no-repeat center center;
+            background-size: cover;
+            border: none; 
+            border-radius: 50%;
+            cursor: pointer; 
+            opacity: 0; 
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+            z-index: 999;
+        }
+        #back-to-top.show { 
+            opacity: 1; 
+            visibility: visible; 
+        }
+        #back-to-top:hover { 
+            transform: scale(1.1); 
+        }
+
+        /* =========================== */
+        /* SECTION 6: FOOTER SIGNATURE STYLES */
+        /* =========================== */
+        .site-signature {
+            font-size: var(--smaller-font-size); 
+            text-align: center; 
+            padding: 1.5rem 1rem; /* Add some padding */
+            color: var(--text-color); /* Use text-color for consistency */
+            background-color: var(--body-color); /* Match body background */
+            width: 100%;
+        }
+        .site-signature a { 
+            color: var(--text-color); 
+            text-decoration: none;
+        }
+        .site-signature a:hover { 
+            color: var(--skin-color); 
+        }
+
+        /* =========================== */
+        /* SECTION 7: MOBILE RESPONSIVENESS */
+        /* =========================== */
+        @media screen and (max-width: 767px) {
+            body { 
+                flex-direction: column; /* Stack sidebar and main content */
+            }
+
+            #dashboard-wrapper {
+                flex-direction: column;
+                flex-grow: 1;
+            }
+
+            #sidebar {
+                position: fixed; /* Make sidebar fixed on mobile */
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 60px; /* Smaller height for mobile header */
+                min-width: 100%;
+                padding: 0.5rem 1rem;
+                flex-direction: row; /* Align items horizontally */
+                justify-content: space-between;
+                align-items: center;
+                border-right: none;
+                border-bottom: 1px solid var(--mirage-color);
+                border-radius: 0;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+                overflow-y: hidden;
+            }
+
+            #sidebar.collapsed {
+                width: 100%;
+                min-width: 100%;
+                height: 60px;
+                padding: 0.5rem 1rem;
+               
+            }
+
+            #sidebar-header {
+                width: auto;
+                margin-bottom: 0;
+                padding: 0;
+            }
+
+            #sidebar-logo {
+                height: 30px;
+            }
+
+            /* Show logo on mobile even when collapsed */
+            #sidebar.collapsed #sidebar-logo {
+                display: block !important;
+            }
+
+            #sidebar-toggle {
+                font-size: 1.5rem;
+                order: 2; /* Move toggle to the right */
+            }
+            #sidebar.collapsed #sidebar-toggle {
+                transform: none; /* No rotation on mobile */
+            }
+
+            #sidebar-nav {
+                position: fixed;
+                top: 60px; /* Below the mobile header */
+                left: 0;
+                width: 100vw;
+                height: calc(100vh - 60px);
+                background: var(--body-color);
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 1.5rem;
+                padding-top: 2rem;
+                transform: translateX(-100%); /* Hide off-screen */
+                transition: transform 0.3s ease-in-out;
+                z-index: 99;
+                overflow-y: auto;
+            }
+
+            #sidebar.mobile-open #sidebar-nav {
+                transform: translateX(0); /* Slide in */
+            }
+
+            #sidebar-nav .sidebar-nav-button {
+                font-size: 1.2rem;
+                padding: 1rem 2rem;
+                width: 80%; /* Wider buttons for mobile */
+                justify-content: center;
+            }
+            #sidebar-nav .sidebar-nav-button span {
+                opacity: 1; /* Always show text on mobile menu */
+                width: auto;
+            }
+            #sidebar-nav .sidebar-nav-button i {
+                margin-right: 1rem;
+            }
+
+            #dashboard-main-content {
+                padding: 1rem;
+                margin-top: 60px; /* Space for fixed mobile header */
+                width: 100%;
+            }
+        }
+
+        /* Tablet responsiveness */
+        @media screen and (min-width: 768px) and (max-width: 1024px) {
+            #sidebar {
+                width: var(--sidebar-width-collapsed); /* Start collapsed on tablet */
+                min-width: var(--sidebar-width-collapsed);
+                padding: 1.5rem 0.5rem;
+                align-items: center;
+            }
+            #sidebar-header {
+                justify-content: center;
+                padding: 0;
+            }
+            #sidebar-logo {
+                height: 30px;
+            }
+            #sidebar-toggle {
+                transform: rotate(180deg);
+            }
+            #sidebar-nav .sidebar-nav-button span {
+                opacity: 0;
+                width: 0;
+                padding: 0;
+                margin: 0;
+            }
+            #sidebar-nav .sidebar-nav-button {
+                justify-content: center;
+                padding: 0.75rem;
+                gap: 0;
+            }
+            
+            /* Hide logo on tablet when collapsed */
+            #sidebar.collapsed #sidebar-logo {
+                display: none !important;
+            }
+            
+            #sidebar.collapsed .sidebar-nav-button i {
+                margin: 0;
+            }
+        }
+
+        /* =========================== */
+        /* SECTION 8: PAGE LOADER STYLES */
+        /* =========================== */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease;
+        }
+
+        .loader-header {
+            color: white;
+            font-size: 24px;
+            font-family: Arial, sans-serif;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .progress {
+            width: 272.8px;
+            height: 41.7px;
+            border-radius: 28.8px;
+            color: #ff5011;
+            background-color: #000;
+            border: 2.9px solid;
+            position: relative;
+        }
+
+        .progress::before {
+            content: "";
+            position: absolute;
+            margin: 2.9px;
+            inset: 0 100% 0 0;
+            border-radius: inherit;
+            background: currentColor;
+            animation: progress-pf82op 1.5s forwards;
+        }
+
+        @keyframes progress-pf82op {
+            100% {
+                inset: 0;
+            }
+        }
+
+        .page-loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        /* =========================== -->
+        <!-- SECTION 9: PAGE-SPECIFIC STYLES -->
+        <!-- =========================== */
+        
+        /* Add your page-specific CSS below */
+        
+    </style>
+
+<!-- =========================== -->
+<!-- SECTION 10: PAGE LOADER SCRIPT -->
+<!-- =========================== -->
+<script>
+    // --- Page Loader Logic ---
+    function showLoader() {
+        const loader = document.createElement('div');
+        loader.className = 'page-loader';
+        loader.innerHTML = `
+            <div class="loader-header">Wait for it...</div>
+            <div class="progress"></div>
+        `;
+        document.body.appendChild(loader);
+        return loader;
+    }
+
+    function initLoader() {
+        const loader = showLoader();
+        setTimeout(() => {
+            loader.classList.add('hidden');
+            setTimeout(() => loader.remove(), 300);
+        }, 1500);
+    }
+
+    document.addEventListener('DOMContentLoaded', initLoader);
+</script>
+<!-- Loader Div is injected by the script above -->
+
+</head>
+<body>
+
+    <div id="dashboard-wrapper">
+        <!-- =========================== -->
+        <!-- SECTION 11: SIDEBAR NAVIGATION -->
+        <!-- =========================== -->
+        <aside id="sidebar">
+            <div id="sidebar-header">
+                <img src="https://bucket.mlcdn.com/a/3336/3336910/images/4258edc9566675e609085514462830fbe2e1b905.png" alt="AIM Logo" id="sidebar-logo" />
+                <button id="sidebar-toggle" aria-label="Toggle Sidebar">
+                    <i class="fa-solid fa-angles-left"></i>
+                </button>
+            </div>
+            
+            <nav id="sidebar-nav">
+                <button class="sidebar-nav-button" data-url="https://asistente.chatterbot.support/share/771302ab9f0f471da32e7fb73372dbe6">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>AGENT 1</span>
+                </button>
+                <button class="sidebar-nav-button" data-url="https://asistente.chatterbot.support/share/771302ab9f0f471da32e7fb73372dbe6">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>AGENT 2</span>
+                </button>
+                <button class="sidebar-nav-button" data-url="https://asistente.chatterbot.support/share/771302ab9f0f471da32e7fb73372dbe6">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>AGENT 3</span>
+                </button>
+                <button class="sidebar-nav-button" data-url="https://asistente.chatterbot.support/share/771302ab9f0f471da32e7fb73372dbe6">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>AGENT 4</span>
+                </button>
+                <button class="sidebar-nav-button" data-url="https://asistente.chatterbot.support/share/771302ab9f0f471da32e7fb73372dbe6">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>AGENT 5</span>
+                </button>
+                <button class="sidebar-nav-button" data-url="https://asistente.chatterbot.support/share/771302ab9f0f471da32e7fb73372dbe6">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>AGENT 6</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- =========================== -->
+        <!-- SECTION 12: MAIN CONTENT AREA (IFRAME) -->
+        <!-- =========================== -->
+        <main id="dashboard-main-content">
+            <iframe id="content-iframe" src="https://asistente.chatterbot.support/share/771302ab9f0f471da32e7fb73372dbe6" title="Dashboard Content"></iframe>
+            
+            
+        
+    <!-- =========================== -->
+    <!-- SECTION 13: PAGE-SPECIFIC SCRIPTS -->
+    <!-- =========================== -->
+    <div class="site-signature">
+        Copyright &#169; 2024 • All rights reserved.<br>Developed with 🧡 by <a href="https://bebelldigitalsolutions.com">Bebell Digital Solutions</a>
+    </div>        
+            
+            
+        </main>
+    </div>
+
+    <!-- =========================== -->
+    <!-- SECTION 14: BACK TO TOP BUTTON -->
+    <!-- =========================== -->
+    <button id="back-to-top" aria-label="Back to Top"></button>
+    
+    <!-- =========================== -->
+    <!-- SECTION 15: BASE JAVASCRIPT -->
+    <!-- =========================== -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Sidebar Toggle Logic ---
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const iframe = document.getElementById('content-iframe');
+            const sidebarNavButtons = document.querySelectorAll('.sidebar-nav-button');
+
+            if (sidebar && sidebarToggle) {
+                sidebarToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                    // For mobile, toggle a separate class to show/hide the overlay menu
+                    if (window.innerWidth < 768) {
+                        sidebar.classList.toggle('mobile-open');
+                        document.body.style.overflow = sidebar.classList.contains('mobile-open') ? 'hidden' : 'auto';
+                    }
+                });
+            }
+
+            // --- Iframe Content Loading Logic ---
+            if (iframe && sidebarNavButtons) {
+                sidebarNavButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const url = button.dataset.url;
+                        if (url) {
+                            iframe.src = url;
+                            // Close mobile sidebar after clicking a link
+                            if (window.innerWidth < 768 && sidebar.classList.contains('mobile-open')) {
+                                sidebar.classList.remove('mobile-open');
+                                document.body.style.overflow = 'auto';
+                            }
+                        }
+                    });
+                });
+            }
+
+            // --- Back to Top Button Logic ---
+            const toTopButton = document.getElementById('back-to-top');
+            
+            if (toTopButton) {
+                // Listen to scroll on the main content area, not the body
+                const mainContentArea = document.getElementById('dashboard-main-content');
+                if (mainContentArea) {
+                    mainContentArea.addEventListener('scroll', function() {
+                        if (mainContentArea.scrollTop > 300) {
+                            toTopButton.classList.add('show');
+                        } else {
+                            toTopButton.classList.remove('show');
+                        }
+                    });
+                }
+
+                toTopButton.addEventListener('click', function() {
+                    // Scroll the main content area to top
+                    if (mainContentArea) {
+                        mainContentArea.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                });
+            }
+            
+            // --- Page Loader Logic (already present, ensuring it works with new layout) ---
+            // This is already handled by the initLoader function at the top of the script.
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                const isMobile = window.innerWidth < 768;
+                
+                // If resizing to desktop from mobile, ensure sidebar is not in mobile-open state
+                if (!isMobile && sidebar.classList.contains('mobile-open')) {
+                    sidebar.classList.remove('mobile-open');
+                    document.body.style.overflow = 'auto';
+                }
+                
+                // For tablet view (768px to 1024px), ensure it starts collapsed.
+                if (window.innerWidth >= 768 && window.innerWidth <= 1024) {
+                    sidebar.classList.add('collapsed');
+                } else if (window.innerWidth > 1024) {
+                    // On larger screens, if it was collapsed, keep it collapsed, otherwise open.
+                    // This prevents it from automatically opening if user preferred it collapsed.
+                    // No specific action needed here, as CSS handles default state.
+                }
+            });
+            
+            // =========================== -->
+            <!-- SECTION 16: PAGE-SPECIFIC JAVASCRIPT -->
+            <!-- =========================== */
+            
+            // Add your page-specific JavaScript here
+            
+        });
+    </script>
+
+</body>
+</html>
